@@ -51,7 +51,7 @@ export default function Perfil() {
   ];
 
   return (
-    <Screen edges={["top", "bottom"]} bg={edit ? colors.white : colors.gray50}>
+    <Screen edges={["top", "bottom"]}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 4, paddingBottom: 8 }}>
         <Pressable onPress={() => (edit ? setEdit(false) : router.back())} style={{ flexDirection: "row", alignItems: "center", gap: 14 }} hitSlop={8}>
           <Icon name="chevL" size={22} strokeWidth={2} />
