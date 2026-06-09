@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useHouseholds } from "@/lib/household-context";
 import { useHouseholdData } from "@/hooks/useHouseholdData";
 import { setItemStatus } from "@/lib/items";
-import { startShopping } from "@/lib/shopping";
+import { startShopping, endSession } from "@/lib/shopping";
 import { useToast } from "@/lib/toast";
 import { friendlyError } from "@/lib/errors";
 import type { ItemWithAuthor } from "@/types/db";
@@ -26,6 +26,8 @@ export default function ModoCompra() {
   // local mirror for instant check/uncheck feedback
   const [local, setLocal] = useState<ItemWithAuthor[]>([]);
   useEffect(() => setLocal(items), [items]);
+
+  const [canceling, setCanceling] = useState(false);
 
   // ensure a session exists when entering shopping mode
   useEffect(() => {
@@ -49,6 +51,19 @@ export default function ModoCompra() {
     } catch (e) {
       show({ icon: "bell", text: friendlyError(e) });
       setLocal((prev) => prev.map((p) => (p.id === it.id ? { ...p, status: it.status } : p)));
+    }
+  }
+
+  // close the shopping session for everyone and go back to the list
+  async function cancel() {
+    if (canceling) return;
+    setCanceling(true);
+    try {
+      if (session) await endSession(session.id);
+      router.back();
+    } catch (e) {
+      show({ icon: "bell", text: friendlyError(e) });
+      setCanceling(false);
     }
   }
 
@@ -97,13 +112,23 @@ export default function ModoCompra() {
         </ScrollView>
 
         {/* confirm bar */}
-        <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8, borderTopWidth: 1, borderTopColor: colors.gray50 }}>
-          <Button
-            variant="primary" full size="lg" icon="check"
-            disabled={done.length === 0}
-            onPress={() => router.push(`/(app)/confirmar?session=${session?.id ?? ""}`)}>
-            Confirmar compra{done.length ? ` · ${done.length}` : ""}
-          </Button>
+        <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8, borderTopWidth: 1, borderTopColor: colors.gray50, gap: 8 }}>
+          {done.length > 0 ? (
+            <>
+              <Button
+                variant="primary" full size="lg" icon="check"
+                onPress={() => router.push(`/(app)/confirmar?session=${session?.id ?? ""}`)}>
+                Confirmar compra · {done.length}
+              </Button>
+              <Button variant="ghost" full size="md" icon="x" loading={canceling} onPress={cancel}>
+                Cancelar compra
+              </Button>
+            </>
+          ) : (
+            <Button variant="soft" full size="lg" icon="x" loading={canceling} onPress={cancel}>
+              Salir del modo compra
+            </Button>
+          )}
         </View>
       </View>
     </SafeAreaView>
