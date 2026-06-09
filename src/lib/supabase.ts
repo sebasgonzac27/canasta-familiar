@@ -18,6 +18,8 @@ export const supabase = createClient<Database>(url, anonKey, {
     storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
+    // PKCE is required so the OAuth redirect returns a code we can exchange on native.
+    flowType: "pkce",
     // URL-based session detection only matters on web (OAuth redirects).
     detectSessionInUrl: Platform.OS === "web",
   },

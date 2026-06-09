@@ -77,7 +77,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
     if (Platform.OS !== "web" && data?.url) {
       const WebBrowser = await import("expo-web-browser");
-      await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (res.type !== "success" || !res.url) return; // user cancelled the browser
+      const { queryParams } = Linking.parse(res.url);
+      const errorCode = queryParams?.error_code ?? queryParams?.error;
+      if (errorCode) throw new Error(String(errorCode));
+      const code = queryParams?.code;
+      if (typeof code !== "string") throw new Error("No se recibió el código de autenticación de Google.");
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      if (exchangeError) throw exchangeError;
     }
   }, []);
 
