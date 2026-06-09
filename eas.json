@@ -13,6 +13,10 @@
       "channel": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://sbrckaalwiegjvhqlcls.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_xVws_jEcSSVZAJABr_Lfmw_kgE-RD62"
       }
     },
     "production": {
