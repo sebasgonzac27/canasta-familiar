@@ -42,8 +42,7 @@ yarn-error.*
 .atl/
 .claude/settings.local.json
 .claude/expo-settings.json
-
-example
+.wrangler/
 
 # generated native folders
 /ios
